@@ -8,5 +8,17 @@
     "nodemon": "^3.1.9",
     "prisma": "^6.4.1",
     "zod": "^3.24.2"
-  }
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "description": "```bash\r npm init -y\r ```\r ### Step 2 install package\r ```\r npm install express nodemon cors morgan bcryptjs jsonwebtoken zod prisma\r ```\r ### Step 3 npx prisma init to obtain file .gitignore, .env and folder prisma \r ```bash\r npx prisma init\r ```\r ### Step 4 push to github\r ```bash\r git init\r git add .\r git commmit -m \"message\"\r git remote add origin https://github.com/chatchai-suri/CC19-front-to-back-recap-api.git\r git branch -M main\r git push -u origin main\r ```\r when update code\r ```bash\r git add .\r git commit -m \"message\"\r git push\r ```",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
