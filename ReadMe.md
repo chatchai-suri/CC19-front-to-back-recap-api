@@ -337,4 +337,152 @@ exports.register =  async (req, res, next) => {
   }
 }
 ```
+### Step 13 login
+/controllers/auth-controller.js [login]
+```js
+exports.login = async (req, res, next) => {
+  // code
+  try {
+    // Step 1 req.body
+    const {email, password} = req.body
+    // Step 2 check email and password
+    const profile = await prisma.profile.findFirst({
+      where: {
+        email: email
+      }
+    })
+    if(!profile) {
+      return createError(400, "Email or Password is invalid!!!")
+    }
+    const isMatch = await bcrypt.compareSync(password, profile.password)
+    console.log("isMatch ====", isMatch)
+    if(!isMatch) {
+      return createError(400, "Email or Password is invalid!!!")
+    }
+    // Step 3 Generate token
+    const payload = {
+      id: profile.id,
+      email: profile.email,
+      firstname: profile.firstname,
+      lastname: profile.lastname,
+      role: profile.role
+    }
+    
+    const token = jwt.sign(payload, process.env.SECRET, {
+      expiresIn: "15d"
+    })
+    console.log("token ==== ", token)
+    // step 4 Response
+    res.json({
+      message: "Hello, Login",
+      payload: payload,
+      token: token
+    })
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+}
+```
+### Step 14 Current-user
+/controllers/auth-controller.js
+```js
+exports.currentUser = async (req, res, next) => {
+  try {
+    res.json({message: "Hello, current user"})
+  } catch (error) {
+    next(error)
+  }
+}
+```
+update code in
+/routes/auth-routes.js
+```js
+const express = require("express");
+const router = express.Router();
+const authControllers = require("../controllers/auth-controller");
+const { validateWithZod, registerSchema, loginSchema } = require('../middlewears/validators')
+
+
+// @ENDPOINT http://localhost:8000/api/register
+router.post("/register", validateWithZod(registerSchema), authControllers.register);
+router.post("/login", validateWithZod(loginSchema), authControllers.login);
+router.get("/current-user", authControllers.currentUser)
+
+// export
+module.exports = router;
+```
+### Step 15 User controller & Routes without logic
+/controller/user-controller.js
+```js
+// 1. List all users
+// 2. Update Role
+// 3. Delete User
+
+exports.listUsers = async (req, res, next) => {
+  try {
+    res.json({message: "Hello, List users"})
+  } catch (error) {
+    next (error)
+  }
+}
+
+exports.updateRole = async (req, res, next) => {
+  try {
+    res.json({message: "Hello, Update Role"})
+  } catch (error) {
+    next (error)
+  }
+}
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    res.json({message: "Hello, Delete User"})
+  } catch (error) {
+    console.log(error)
+  }
+}
+```
+/routes/user-route.js
+```js
+const express = require("express")
+const router = express.Router()
+// Import controller
+const userController = require('../controllers/user-controller')
+
+//@ENDPOINT http://localhost:8000/api/users
+router.get('/users', userController.listUsers)
+router.patch('/user/update-role', userController.updateRole)
+router.delete('/user/:id', userController.deleteUser)
+
+module.exports = router
+```
+update index.js
+```js
+const express =  require('express')
+const cors = require('cors')
+const morgan = require('morgan')
+const handleErrors = require('./middlewears/error')
+// Import Routing
+const authRouter = require('./routes/auth-route')
+const userRouter = require('./routes/user-route')
+
+const app = express()
+
+// Middlewares
+app.use(cors())  // Allows cross domain
+app.use(morgan("dev")) // Show log terminal
+app.use(express.json()) // For read json
+
+// Routing
+app.use("/api", authRouter)
+app.use("/api", userRouter)
+
+// Handle errors
+app.use(handleErrors)
+
+// Start Server
+const PORT = 8000
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`))
+```
 

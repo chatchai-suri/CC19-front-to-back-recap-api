@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const handleErrors = require('./middlewears/error')
 // Import Routing
 const authRouter = require('./routes/auth-route')
+const userRouter = require('./routes/user-route')
 
 const app = express()
 
@@ -14,6 +15,7 @@ app.use(express.json()) // For read json
 
 // Routing
 app.use("/api", authRouter)
+app.use("/api", userRouter)
 
 // Handle errors
 app.use(handleErrors)
